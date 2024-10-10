@@ -9,13 +9,6 @@ double func_a(double x){
     return tan(0.5*x + 0.1) - x*x;
 }
 
-// //          1
-// //  ------------------ - 2x
-// //  2cos(0.5x + 0.1)^2
-// double func_a_diff(double x){
-//     return 1 / (2 * pow(cos(0.5*x + 0.1), 2)) - 2*x;
-// }
-
 
 
 //  х^2 + х - 5
@@ -27,7 +20,6 @@ double func_b(double x){
 double func_b_diff(double x){
     return 2*x + 1;
 }
-
 
 
 
