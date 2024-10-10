@@ -45,35 +45,54 @@ double func_c_diff(double x){
 
 //  x0 = a; b - неподвижная точка
 double metod_hord(double x, double r_border, double (*func)(double)){
+    printf("x0 = %f\n", x);
+    int counter_1 = 1;
+    int counter_2 = 0;
+
     double prev_x = x+1;
     double func_res = 0;
     while(fabs(x - prev_x) > epsilon){
         prev_x = x;
         func_res = func(x);
         x = x - func_res*(r_border-x) / (func(r_border)-func_res);
-        // printf("x = %f\tx-prev_x = %f\n", x, x-prev_x);
+
+        printf("x%d = %f\t|x%d-x%d| = %f\n", counter_1, x, counter_1, counter_2, fabs(x-prev_x));
+        counter_1++;
+        counter_2++;
     }
     return x;
 }
 
 //  x0 = b; a - неподвижная точка
 double metod_newton(double x, double (*func)(double), double (*func_diff)(double)){
+    printf("x0 = %f\n", x);
+    int counter_1 = 0;
+    int counter_2 = 1;
+
     double prev_x = x+1;
     while(fabs(x - prev_x) > epsilon){
         prev_x = x;
         x = x - func(x)/func_diff(x);
-        // printf("x = %f\tx-prev_x = %f\n", x, x-prev_x);
+
+        printf("x%d = %f\t|x%d-x%d| = %f\n", counter_2, x, counter_2, counter_1, fabs(x-prev_x));
+        counter_1++;
+        counter_2++;
     }
     return x;
 }
 
 double metod_combine(double l_border, double r_border, double (*func)(double), double (*func_diff)(double)){
+    printf("l_x0 = %f\tr_x0 = %f\n", l_border, r_border);
+    int counter = 1;
+    
     double func_res = 0;
-    while(r_border - l_border > epsilon){
+    while(fabs(r_border - l_border) > epsilon){
         func_res = func(l_border);
         l_border = l_border - func_res*(r_border-l_border) / (func(r_border)-func_res);
         r_border = r_border - func(r_border)/func_diff(r_border);
-        // printf("l_x = %f\tr_x = %f\tr_x-l_x = %f\n", l_border, r_border, r_border - l_border);
+
+        printf("l_x%d = %f\tr_x%d = %f\t|r_x%d-l_x%d| = %f\n", counter, l_border, counter, r_border, counter, counter, fabs(r_border-l_border));
+        counter++;
     }
     return 0.5*(l_border+r_border);
 }
