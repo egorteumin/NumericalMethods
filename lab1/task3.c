@@ -91,13 +91,13 @@ double metod_combine(double l_border, double r_border, double (*func)(double), d
 
 int main(){
     printf("а) tg(0.5х+0.1) = х^2\n");
-    printf("Метод хорд: x = %f\n", metod_hord(2.46, 2.75, func_a));
+    printf("Метод хорд: x = %f\n", metod_hord(2.5, 2.75, func_a));
 
     printf("\nб) х^2 + х - 5 = 0\n");
-    printf("Метод касательных: x = %f\n", metod_newton(2.2, func_b, func_b_diff));
+    printf("Метод касательных: x = %f\n", metod_newton(2, func_b, func_b_diff));
 
     printf("\nв) х^3 + 3х^2 - 2 = 0\n");
-    printf("Комбинированный метод: x = %f\n", metod_combine(0.5, 1, func_c, func_c_diff));
+    printf("Комбинированный метод: x = %f\n", metod_combine(0.1, 1, func_c, func_c_diff));
 
     return 0;
 }

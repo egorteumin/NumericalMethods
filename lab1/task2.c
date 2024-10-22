@@ -29,6 +29,6 @@ double iter_method(double x, double (*func)(double)){
 
 int main(){
     printf("(2-x) * e^x = 0\n");
-    printf("Итерационный метод: x = %f\n", iter_method(1.1, func));
+    printf("Итерационный метод: x = %f\n", iter_method(1.5, func));
     return 0;
 }
