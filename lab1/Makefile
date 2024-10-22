@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all clear
 all: task2 task3
 
 task2: task2.c
@@ -6,3 +6,6 @@ task2: task2.c
 
 task3: task3.c
 	gcc task3.c -lm -o task3
+
+clear:
+	rm task2 task3
