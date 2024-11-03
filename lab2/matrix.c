@@ -16,78 +16,81 @@ int read_dim(long *dim, FILE *file){
     return *dim;
 }
 
-void read_A_matrix(double **matrix, const long dim, FILE *file){ 
-    char *str = (char*)calloc(20*dim, sizeof(char));
-    char *str_end = NULL;
+void read_matrix(void **matrix, const long dim, const Etype matrix_type, FILE *file){
+    char *str = (char*)calloc(32*dim, sizeof(char));
+    
+    switch(matrix_type){
+        case QUADRATIC:
+        {
+            char *str_end = NULL;
+            for(long i = 0; i < dim; ++i){
+                fgets(str, 32*dim, file);
+                str_end = str;
 
-    for(long i = 0; i < dim; ++i){
-        fgets(str, 20*dim, file);
-        str_end = str;
-
-        for(long j = 0; j < dim; ++j){
-            matrix[i][j] = strtod(str_end, &str_end);
-        }
-    }
-
-    free(str);
-    return;
-}
-
-void read_X_matrix(char **matrix, const long dim, FILE *file){
-    char *str = (char*)calloc(16*dim, sizeof(char));
-    fgets(str, 16*dim, file);
-
-    size_t n = 0;
-    for(long i = 0; i < dim; ++i){
-        for(long j = 0; j < dim; ++j){
-            matrix[i][j] = str[n++];
-            if(str[n] == ' '){
-                n++;
-                break;
+                for(long j = 0; j < dim; ++j){
+                    ((double*)matrix[i])[j] = strtod(str_end, &str_end);
+                }
             }
+            break;
         }
-    }
-
-    free(str);
-    return;
-}
-
-void read_B_matrix(double *matrix, const long dim, FILE *file){
-    char *str = (char*)calloc(20*dim, sizeof(char));
-    fgets(str, 20*dim, file);
-    char *str_end = str;
-
-    for(long i = 0; i < dim; i++){
-        matrix[i] = strtod(str_end, &str_end);
-    }
-
-    free(str);
-    return;
-}
-
-
-void print_A_matrix(double **matrix, const long dim){
-    for(long i = 0; i < dim; ++i){
-        for(long j = 0; j < dim; ++j){
-            printf("%lf ", matrix[i][j]);
-            if(j == dim-1){
-                printf("\n");
+        case UNKNOWN:
+        {
+            size_t n = 0;
+            fgets(str, 32*dim, file);
+            for(long i = 0; i < dim; ++i){
+                for(long j = 0; j < dim; ++j){
+                    ((char*)matrix[i])[j] = str[n++];
+                    if(str[n] == ' ' || str[n] == '\n'){
+                        n++;
+                        ((char*)matrix[i])[++j] = '\0';
+                        break;
+                    }
+                }
             }
+            break;
         }
+        case VECTOR:
+        {
+            char *str_end = NULL;
+            fgets(str, 32*dim, file);
+            str_end = str;
+            for(long i = 0; i < dim; ++i){
+                *((double*)matrix[i]) = strtod(str_end, &str_end);
+            }
+            break;
+        }
+        default:
+            break;
     }
+
+    free(str);
     return;
 }
 
-void print_B_matrix(double *matrix, const long dim){
-    for(int i = 0; i < dim; ++i){
-        printf("%lf\n", matrix[i]);
-    }
-    return;
-}
-
-void print_X_matrix(char **matrix, const long dim){
-    for(int i = 0; i < dim; ++i){
-        printf("%s\n", matrix[i]);
+void print_matrix(void **matrix, const long dim, const Etype matrix_type){
+    switch(matrix_type){
+        case QUADRATIC:
+            for(long i = 0; i < dim; ++i){
+                for(long j = 0; j < dim; ++j){
+                    printf("%lf ", ((double*)matrix[i])[j]);
+                    if(j == dim-1){
+                        printf("\n");
+                    }
+                }
+            }
+            break;
+        case UNKNOWN:
+            for(long i = 0; i < dim; ++i){
+                printf("%s\n", (char*)matrix[i]);
+            }
+            break;
+        case VECTOR:
+            for(long i = 0; i < dim; ++i){
+                printf("%lf\n", *(double*)matrix[i]);
+            }
+            break;
+        default:
+            break;
     }
     return;
 }
@@ -172,4 +175,20 @@ void inverse(double **matrix, double **inverse_matrix, const long dim){
     }
     free(minor_matrix);
     return;
+}
+
+
+double** multiplication(double **matrix_inverse, double **matrix_B, const long dim){
+    double **res = (double**)calloc(dim, sizeof(double*));
+    for(long i = 0; i < dim; ++i){
+        res[i] = (double*)calloc(1, sizeof(double));
+    }
+
+    for(long i = 0; i < dim; ++i){
+        for(long j = 0; j < dim; ++j){
+            res[i][0] += matrix_inverse[i][j] * matrix_B[j][0];
+        }
+    }
+
+    return res;
 }
