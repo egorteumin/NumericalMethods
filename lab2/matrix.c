@@ -147,3 +147,29 @@ double det(double **matrix, const long dim){
             return res;
     }
 }
+
+void inverse(double **matrix, double **inverse_matrix, const long dim){
+    double **minor_matrix = (double**)malloc((dim-1)*sizeof(double*));
+    for(long i = 0; i < dim-1; ++i){
+        minor_matrix[i] = (double*)malloc((dim-1)*sizeof(double));
+    }
+
+    double det_matrix = det(matrix, dim);
+    for(long i = 0; i < dim; ++i){
+        for(long j = 0; j < dim; ++j){
+            minor(matrix, minor_matrix, dim, j, i);
+            if((i+j) % 2 == 0){
+                inverse_matrix[i][j] = det(minor_matrix, dim-1)/det_matrix;
+            }
+            else{
+                inverse_matrix[i][j] = -det(minor_matrix, dim-1)/det_matrix;
+            }
+        }
+    }
+
+    for(long i = 0; i < dim-1; ++i){
+        free(minor_matrix[i]);
+    }
+    free(minor_matrix);
+    return;
+}
