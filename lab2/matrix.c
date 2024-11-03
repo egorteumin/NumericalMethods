@@ -1,6 +1,7 @@
 #include "matrix.h"
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 int read_dim(long *dim, FILE *file){
     char str[16];
@@ -64,6 +65,7 @@ void read_B_matrix(double *matrix, const long dim, FILE *file){
     return;
 }
 
+
 void print_A_matrix(double **matrix, const long dim){
     for(long i = 0; i < dim; ++i){
         for(long j = 0; j < dim; ++j){
@@ -90,3 +92,58 @@ void print_X_matrix(char **matrix, const long dim){
     return;
 }
 
+
+void minor(double **matrix, double** minor_matrix, const long dim_matrix, const long pos_x, const long pos_y){
+    long i = 0;
+    for(long x = 0; x < dim_matrix; ++x){
+        if(x == pos_x){
+            continue;
+        }
+
+        long j = 0;
+        for(long y = 0 ; y < dim_matrix; ++y){
+            if(y == pos_y){
+                continue;
+            }
+            minor_matrix[i][j++] = matrix[x][y];
+        }
+        i++;
+    }
+    return;
+}
+
+double det(double **matrix, const long dim){
+    if(dim < 1){
+        errno = EINVAL;
+        return 0;
+    }
+
+    switch(dim){
+        case 1:
+            return **matrix;
+        case 2:
+            return matrix[0][0]*matrix[1][1]-matrix[0][1]*matrix[1][0];
+        default:
+            double **minor_matrix = (double**)malloc((dim-1)*sizeof(double*));
+            for(long i = 0; i < dim-1; ++i){
+                minor_matrix[i] = (double*)malloc((dim-1)*sizeof(double));
+            }
+
+            double res = 0;
+            for(long i = 0; i < dim; ++i){
+                minor(matrix, minor_matrix, dim, 0, i);
+                if(i % 2 == 0){
+                    res += matrix[0][i] * det(minor_matrix, dim-1);
+                }
+                else{
+                    res -= matrix[0][i] * det(minor_matrix, dim-1);
+                }
+            }
+
+            for(long i = 0; i < dim-1; ++i){
+                free(minor_matrix[i]);
+            }
+            free(minor_matrix);
+            return res;
+    }
+}
