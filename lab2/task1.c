@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "matrixio.h"
+#include "matrix.h"
 
 int main(int argc, char **argv){
     if(argc < 2){
@@ -19,34 +19,48 @@ int main(int argc, char **argv){
         return 1;
     }
     
+
     double **matrix_A = (double**)malloc(dim*sizeof(double*));
     char **matrix_X = (char**)malloc(dim*sizeof(char*));
-    double *matrix_B = (double*)malloc(dim*sizeof(double));
+    double **matrix_B = (double**)malloc(dim*sizeof(double*));
 
     for(long i = 0; i < dim; ++i){
         matrix_A[i] = (double*)malloc(dim*sizeof(double));
-        matrix_X[i] = (char*)malloc(16*sizeof(char));
+        matrix_X[i] = (char*)malloc(32*sizeof(char));
+        matrix_B[i] = (double*)malloc(sizeof(double));
     }
 
-    read_A_matrix(matrix_A, dim, file);
-    read_X_matrix(matrix_X, dim, file);
-    read_B_matrix(matrix_B, dim, file);
+    read_matrix((void**)matrix_A, dim, QUADRATIC, file);
+    read_matrix((void**)matrix_X, dim, UNKNOWN, file);
+    read_matrix((void**)matrix_B, dim, VECTOR, file);
 
     fclose(file);
 
-    printf("Matrix A:\n");
-    print_A_matrix(matrix_A, dim);
-    printf("\nMatrix X:\n");
-    print_X_matrix(matrix_X, dim);
-    printf("Matrix B:\n");
-    print_B_matrix(matrix_B, dim);
+
+    double **inverse_matrix = (double**)malloc(dim*sizeof(double*));
+    for(long i = 0; i < dim; ++i){
+        inverse_matrix[i] = (double*)malloc(dim*sizeof(double));
+    }
+
+    inverse(matrix_A, inverse_matrix, dim);
+
+    double **res = multiplication(inverse_matrix, matrix_B, dim);
+    for(long i = 0; i < dim; ++i){
+        printf("%s = %lf\n", matrix_X[i], res[i][0]);
+    }
+
 
     for(long i = 0; i < dim; ++i){
         free(matrix_A[i]);
         free(matrix_X[i]);
+        free(matrix_B[i]);
+        free(inverse_matrix[i]);
+        free(res[i]);
     }
     free(matrix_A);
     free(matrix_X);
     free(matrix_B);
+    free(inverse_matrix);
+    free(res);
     return 0;
 }
