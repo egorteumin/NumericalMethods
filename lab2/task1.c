@@ -37,30 +37,30 @@ int main(int argc, char **argv){
     fclose(file);
 
 
-    double **inverse_matrix = (double**)malloc(dim*sizeof(double*));
+    printf("Kramer:\n");
+    double **matrix_res = kramer(matrix_A, matrix_B, dim);
+    print_matrix((void**)matrix_res, dim, VECTOR);
+
     for(long i = 0; i < dim; ++i){
-        inverse_matrix[i] = (double*)malloc(dim*sizeof(double));
+        free(matrix_res[i]);
     }
-
-    inverse(matrix_A, inverse_matrix, dim);
-
-    double **res = multiplication(inverse_matrix, matrix_B, dim);
-    for(long i = 0; i < dim; ++i){
-        printf("%s = %lf\n", matrix_X[i], res[i][0]);
-    }
+    free(matrix_res);
 
 
+    printf("\nSeidel:\n");
+    matrix_res = seidel(matrix_A, matrix_B, dim);
+    print_matrix((void**)matrix_res, dim, VECTOR);    
+    
+    
     for(long i = 0; i < dim; ++i){
         free(matrix_A[i]);
         free(matrix_X[i]);
         free(matrix_B[i]);
-        free(inverse_matrix[i]);
-        free(res[i]);
+        free(matrix_res[i]);
     }
     free(matrix_A);
     free(matrix_X);
     free(matrix_B);
-    free(inverse_matrix);
-    free(res);
+    free(matrix_res);
     return 0;
 }
