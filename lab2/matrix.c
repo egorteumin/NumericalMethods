@@ -1,7 +1,7 @@
 #include "matrix.h"
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <math.h>
 
 int read_dim(long *dim, FILE *file){
     char str[16];
@@ -116,11 +116,6 @@ void minor(double **matrix, double** minor_matrix, const long dim_matrix, const 
 }
 
 double det(double **matrix, const long dim){
-    if(dim < 1){
-        errno = EINVAL;
-        return 0;
-    }
-
     switch(dim){
         case 1:
             return **matrix;
@@ -191,4 +186,63 @@ double** multiplication(double **matrix_inverse, double **matrix_B, const long d
     }
 
     return res;
+}
+
+
+double** kramer(double **matrix_A, double **matrix_B, const long dim){
+    double **inverse_matrix = (double**)malloc(dim*sizeof(double*));
+    for(long i = 0; i < dim; ++i){
+        inverse_matrix[i] = (double*)malloc(dim*sizeof(double));
+    }
+
+    inverse(matrix_A, inverse_matrix, dim);
+    double **res = multiplication(inverse_matrix, matrix_B, dim);
+   
+    for(long i = 0; i < dim; ++i){
+        free(inverse_matrix[i]);
+    }
+    free(inverse_matrix);
+    return res;
+}
+
+double** seidel(double **matrix_A, double **matrix_B, const long dim){
+    double d_elem = 0;
+    for(long i = 0; i < dim; ++i){
+        d_elem = fabs(matrix_A[i][i]);
+        for(long j = 0; j < dim; ++j){
+            if(i == j){
+                continue;
+            }
+
+            d_elem -= fabs(matrix_A[i][j]);
+            if(d_elem <= 0){
+                fprintf(stderr, "Ошибка: диаганальные коэффициенты меньше чем или равны сумме модулей остальных коэффициентов\n");
+                return NULL;
+            }
+        }
+    }
+
+    double **matrix_res = (double**)calloc(dim, sizeof(double*));
+    for(long i = 0; i < dim; ++i){
+        matrix_res[i] = (double*)calloc(1, sizeof(double));
+    }
+
+    double norma;
+    double new = 0;
+    do{
+        norma = 0;
+        for(long i = 0; i < dim; ++i){
+            new = matrix_B[i][0] / matrix_A[i][i];
+            for(long j = 0; j < dim; ++j){
+                if(i == j){
+                    continue;
+                }
+                new -= matrix_A[i][j] / matrix_A[i][i] * matrix_res[j][0];
+            }
+            norma += (matrix_res[i][0] - new) * (matrix_res[i][0] - new);
+            matrix_res[i][0] = new;
+        }
+    } while(sqrt(norma) > epsilon);
+
+    return matrix_res;
 }

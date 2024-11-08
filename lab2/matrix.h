@@ -1,6 +1,8 @@
 #pragma once
 #include <stdio.h>
 
+#define epsilon 0.0001
+
 typedef enum{
     QUADRATIC,
     UNKNOWN,
@@ -16,3 +18,6 @@ double det(double **matrix, const long dim);
 void inverse(double **matrix, double **inverse_matrix, const long dim);
 
 double** multiplication(double **matrix_inverse, double **matrix_B, const long dim);
+
+double** kramer(double **matrix_A, double **matrix_B, const long dim);
+double** seidel(double **matrix_A, double **matrix_B, const long dim);
