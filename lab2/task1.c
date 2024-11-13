@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
 #include "matrix.h"
 
 int main(int argc, char **argv){
@@ -37,9 +39,15 @@ int main(int argc, char **argv){
     fclose(file);
 
 
-    printf("Kramer:\n");
+    clockid_t clockid;
+    struct timespec nanotime;
+    clock_getcpuclockid(getpid(), &clockid);
     double **matrix_res = kramer(matrix_A, matrix_B, dim);
+    clock_gettime(clockid, &nanotime);
+
+    printf("Время выполнения метода Крамера: %ld наносекунд\n", nanotime.tv_nsec);
     print_matrix((void**)matrix_res, dim, VECTOR);
+
 
     for(long i = 0; i < dim; ++i){
         free(matrix_res[i]);
@@ -47,8 +55,13 @@ int main(int argc, char **argv){
     free(matrix_res);
 
 
-    printf("\nSeidel:\n");
+    nanotime.tv_sec = 0;
+    nanotime.tv_nsec = 0;
+    clock_settime(clockid, &nanotime);
     matrix_res = seidel(matrix_A, matrix_B, dim);
+    clock_gettime(clockid, &nanotime);
+
+    printf("\nВремя выполнения метода Зейделя: %ld наносекунд\n", nanotime.tv_nsec);
     print_matrix((void**)matrix_res, dim, VECTOR);    
     
     
