@@ -46,7 +46,9 @@ int main(int argc, char **argv){
     clock_gettime(clockid, &nanotime);
 
     printf("Время выполнения метода Крамера: %ld наносекунд\n", nanotime.tv_nsec);
-    print_matrix((void**)matrix_res, dim, VECTOR);
+    for(long i = 0; i < dim; ++i){
+        printf("%s = %f\n", matrix_X[i], *matrix_res[i]);
+    }
 
 
     for(long i = 0; i < dim; ++i){
@@ -62,9 +64,11 @@ int main(int argc, char **argv){
     clock_gettime(clockid, &nanotime);
 
     printf("\nВремя выполнения метода Зейделя: %ld наносекунд\n", nanotime.tv_nsec);
-    print_matrix((void**)matrix_res, dim, VECTOR);    
+    for(long i = 0; i < dim; ++i){
+        printf("%s = %f\n", matrix_X[i], *matrix_res[i]);
+    }
     
-    
+
     for(long i = 0; i < dim; ++i){
         free(matrix_A[i]);
         free(matrix_X[i]);
